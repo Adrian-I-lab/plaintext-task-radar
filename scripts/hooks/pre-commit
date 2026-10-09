@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# Refuse a commit when a staged file, or a staged file name, holds a
+# denylisted term or a secret-like pattern. Whole staged files are scanned,
+# not only the changed lines, so an old problem cannot ride along.
+# Enable with: git config core.hooksPath scripts/hooks
+set -u
+SCAN_HOOK=pre-commit
+# shellcheck source=scripts/hooks/scan-lib.sh
+. "$(dirname "$0")/scan-lib.sh"
+scan_init
+
+index=0
+while IFS= read -r -d '' path; do
+  index=$((index + 1))
+  label=$path
+  printf '%s\n' "$path" > "$SCAN_DIR/name"
+  before=$SCAN_HITS
+  scan_file "staged file name #$index" "$SCAN_DIR/name"
+  # Never echo a file name that itself tripped a check.
+  [ "$SCAN_HITS" -eq "$before" ] || label="staged file #$index"
+  [ "$(git ls-files -s -- "$path" | cut -c1-6)" = "160000" ] && continue
+  git cat-file blob ":$path" > "$SCAN_DIR/blob" ||
+    scan_die "cannot read the staged copy of file #$index"
+  scan_file "$label" "$SCAN_DIR/blob"
+done < <(git diff --cached --name-only -z --diff-filter=ACMR)
+
+scan_finish

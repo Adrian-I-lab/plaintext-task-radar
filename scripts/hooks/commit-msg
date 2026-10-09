@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Refuse a commit whose message holds a denylisted term or a secret-like
+# pattern. Comment lines, and anything below the scissors line that
+# "git commit --verbose" adds, are blanked first so line numbers still match.
+# Enable with: git config core.hooksPath scripts/hooks
+set -u
+SCAN_HOOK=commit-msg
+# shellcheck source=scripts/hooks/scan-lib.sh
+. "$(dirname "$0")/scan-lib.sh"
+[ $# -ge 1 ] && [ -r "$1" ] || scan_die "no readable commit message file"
+scan_init
+
+sed -e '/^# -* >8 -*$/,$d' -e 's/^#.*$//' "$1" > "$SCAN_DIR/message"
+scan_file "commit message" "$SCAN_DIR/message"
+
+scan_finish
