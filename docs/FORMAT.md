@@ -6,6 +6,7 @@ This is the contract that `taskradar` implements. The code and the tests are che
 
 - One Markdown file per project. Any `.md` file under the folder you point the tool at is read.
 - Hidden folders (names starting with `.`) are skipped.
+- Files whose name is all capitals, such as `README.md`, are documentation, not notes, and are skipped.
 - The notes are the source of truth. Every report is derived from them and regenerated on each run.
 
 ## Frontmatter
