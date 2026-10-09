@@ -1,0 +1,23 @@
+Radar for 2026-10-14 (horizon 7 days, stale after 21 days)
+Totals: 4 overdue, 5 due soon, 1 stale, 3 project issues
+
+Overdue (4)
+  2026-10-07  7 days late   conference-talk.md  Project deadline: Conference talk
+  2026-10-09  5 days late   community-garden.md:15  Order the compost delivery
+  2026-10-12  2 days late   community-garden.md:16  Fix the shed door hinge
+  2026-10-13  1 day late    community-garden.md:18  Measure the north bed
+
+Due soon (5)
+  2026-10-14  due today     bike-repair.md:13  Replace the rear brake pads
+  2026-10-16  in 2 days     bike-repair.md:14  True the front wheel
+  2026-10-19  in 5 days     tidy-csv-library.md:14  Add a README badge and a CLAUDE.md section on tests
+  2026-10-20  in 6 days     book-club.md:11  Pick the December book
+  2026-10-21  in 7 days     book-club.md:18  Draft the discussion questions
+
+Stale (1)
+  43 days since update  house-painting.md:12  Choose the hallway colour
+
+Project issues (3)
+  conference-talk.md  deadline-passed: deadline 2026-10-07 has passed
+  half-marathon.md  no-live-tasks: active project with no open or in-progress task
+  recipe-zine.md  live-tasks-in-closed-project: status done but 1 live task(s)
