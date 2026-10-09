@@ -14,10 +14,8 @@ PRIORITIES = ("high", "medium", "low")
 
 def to_date(value: Any) -> date | None:
     """Return a date for a real YYYY-MM-DD value (string or YAML date), else None."""
-    if isinstance(value, datetime):
-        return value.date()
     if isinstance(value, date):
-        return value
+        return None if isinstance(value, datetime) else value
     try:
         return date.fromisoformat(value) if isinstance(value, str) and len(value) == 10 else None
     except ValueError:
@@ -50,6 +48,7 @@ class Project:
     tasks: list[Task]
     meta_errors: list[str]
     near_misses: list[int] = field(default_factory=list)
+    meta_lines: dict[str, int] = field(default_factory=dict)
 
     @property
     def status(self) -> str | None:

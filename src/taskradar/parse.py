@@ -21,12 +21,12 @@ PRIORITY_SIGNS = {"⏫": "high", "🔼": "medium", "🔽": "low"}
 def check_meta(meta: dict) -> list[str]:
     errors = [f"missing required key '{k}'" for k in REQUIRED if k not in meta]
     if "status" in meta and meta["status"] not in STATUSES:
-        errors.append(f"status '{meta['status']}' is not one of {', '.join(STATUSES)}")
+        errors.append(f"status: '{meta['status']}' is not one of {', '.join(STATUSES)}")
     if "priority" in meta and meta["priority"] not in PRIORITIES:
-        errors.append(f"priority '{meta['priority']}' is not one of {', '.join(PRIORITIES)}")
+        errors.append(f"priority: '{meta['priority']}' is not one of {', '.join(PRIORITIES)}")
     for key in ("deadline", "updated"):
         if meta.get(key) is not None and to_date(meta[key]) is None:
-            errors.append(f"{key} '{meta[key]}' is not a YYYY-MM-DD date")
+            errors.append(f"{key}: '{meta[key]}' is not a YYYY-MM-DD date")
     return errors
 
 
@@ -69,6 +69,7 @@ def parse_text(path: Path, content: str) -> Project:
     lines = content.splitlines()
     meta, errors, start = read_frontmatter(lines)
     project = Project(path, meta, [], errors)
+    project.meta_lines = {ln.split(":")[0]: i + 1 for i, ln in enumerate(lines[:start])}
     fence: str | None = None
     in_tasks = False
     for index in range(start, len(lines)):

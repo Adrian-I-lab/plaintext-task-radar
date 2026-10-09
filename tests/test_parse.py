@@ -85,7 +85,8 @@ def test_frontmatter_errors():
     assert broken.meta_errors == ["frontmatter is not valid YAML"]
     bad = parse("x\n", head="---\ntitle: T\nstatus: on-hold\npriority: low\nupdated: 14/10\n---\n")
     assert bad.status is None
-    assert [e.split()[0] for e in bad.meta_errors] == ["status", "updated"]
+    assert [e.split(":")[0] for e in bad.meta_errors] == ["status", "updated"]
+    assert bad.meta_lines["status"] == 3
 
 
 def test_frontmatter_dates_parse():
