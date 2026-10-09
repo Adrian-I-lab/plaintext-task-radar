@@ -7,14 +7,10 @@ from datetime import date
 from pathlib import Path
 
 from . import __version__
+from .html import render as render_html
 from .lint import format_finding, lint
 from .parse import iter_notes
-from .radar import Item, Report, build
-
-
-def where(path: Path, line: int, root: Path) -> str:
-    rel = path.relative_to(root).as_posix() if path.is_relative_to(root) else path.as_posix()
-    return f"{rel}:{line}" if line else rel
+from .radar import Item, Report, build, where
 
 
 def when(item: Item, late: bool) -> str:
@@ -70,6 +66,7 @@ def make_parser() -> argparse.ArgumentParser:
     radar.add_argument("--horizon", type=int, default=7, help="due soon window in days")
     radar.add_argument("--stale-days", type=int, default=21, help="age limit for undated tasks")
     radar.add_argument("--json", action="store_true", help="print JSON instead of text")
+    radar.add_argument("--html", type=Path, metavar="PATH", help="also write a static HTML report")
     radar.add_argument("--fail-on-overdue", action="store_true", help="exit 2 if anything is late")
     lint_cmd = sub.add_parser("lint", help="check notes against the format rules")
     lint_cmd.add_argument("root", type=Path, help="folder of notes, or one note")
@@ -90,6 +87,9 @@ def main(argv: list[str] | None = None) -> int:
         print(f"{len(findings)} finding(s): {errors} error(s), {len(findings) - errors} warning(s)")
         return 1 if errors else 0
     report = build(projects, args.today or date.today(), args.horizon, args.stale_days)
+    if args.html:
+        args.html.parent.mkdir(parents=True, exist_ok=True)
+        args.html.write_text(render_html(report, args.root), encoding="utf-8")
     print(render_json(report, args.root) if args.json else render_text(report, args.root), end="")
     return 2 if args.fail_on_overdue and report.overdue else 0
 

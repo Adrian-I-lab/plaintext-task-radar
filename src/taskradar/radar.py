@@ -43,6 +43,12 @@ class Report:
                 "stale": len(self.stale), "project_issues": len(self.project_issues)}
 
 
+def where(path: Path, line: int, root: Path) -> str:
+    """Path relative to the scanned folder, with ":line" for a task."""
+    rel = path.relative_to(root).as_posix() if path.is_relative_to(root) else path.as_posix()
+    return f"{rel}:{line}" if line else rel
+
+
 def git_date(path: Path) -> date | None:
     """Date of the file's last commit, or None outside a repository."""
     try:
