@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install
+        run: python -m pip install -e ".[dev]"
+      - name: Ruff
+        run: ruff check .
+      - name: Tests
+        run: pytest -q
+      - name: Core line budget
+        run: python tools/check_core_size.py
+      - name: Lint the demo vault (it holds planted errors, so exit 1 is expected)
+        run: |
+          set +e
+          taskradar lint examples/demo-vault
+          status=$?
+          set -e
+          test "$status" -eq 1
+      - name: Radar output matches the golden file
+        run: taskradar radar examples/demo-vault --today 2026-10-14 | diff - tests/golden/demo-radar.txt
