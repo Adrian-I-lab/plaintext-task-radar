@@ -4,6 +4,10 @@
 also lints the notes for task markers and dates that no reader would ever see. The notes stay the source
 of truth: every report is derived from them and regenerated on each run.
 
+**Status: rough prototype (version 0.1.0).** It passes its unit tests and gives the expected results
+on the bundled demo vault, but it has not yet been used on many real note collections. Expect rough
+edges, and read the limitations below before relying on it. The note format may still change.
+
 ![HTML report for the demo vault](docs/demo-report.png)
 
 ## Why a linter
@@ -100,15 +104,16 @@ The full contract is in [docs/FORMAT.md](docs/FORMAT.md). In short:
 
 - **Plain files are the source of truth.** The tool never edits a note. Reports are derived and can be
   thrown away.
-- **Reproducible.** `--today` fixes the reference date, so the same notes always give the same output.
-  The tests and the golden files depend on it.
+- **Reproducible.** `--today` fixes the reference date, so the same notes give the same output. The
+  tests and the golden files depend on it. Stale ages are the exception when a note has no `updated`
+  date, because they then come from git history or the file's modification time.
 - **Live is a whitelist.** Only `[ ]` and `[~]` are on the radar. A new symbol is an error, never an
   accidental open task.
 - **Structural matching.** A marker inside backticks, a table cell, or a fenced block is never a task.
 - **Small.** One runtime dependency and a core of 438 lines (non-blank, non-comment), measured by
   `tools/check_core_size.py`. CI fails the build above 500.
-- **Every gate has a control.** The tests show each check failing on a planted case, including fenced
-  and footnote twins, the 7 versus 8 day boundary, and the hooks below.
+- **Checks have controls.** The tests pair the main checks with planted cases that must fail, including
+  fenced and footnote twins, the 7 versus 8 day boundary, and the hooks below.
 
 ## Development
 
@@ -133,6 +138,13 @@ commit, so they fail closed.
   are a weak fallback, because a fresh clone resets them.
 - Notes are read one at a time. There is no cross-note linking or task propagation.
 - English signifiers and ISO dates only.
+- Only Markdown files ending in `.md` are read, as UTF-8. Undecodable bytes are replaced, not reported.
+- `--horizon` and `--stale-days` are not range checked. A negative horizon empties the due-soon
+  section, and a negative stale limit marks every undated live task stale.
+- When an active note with undated live tasks has no `updated` date, the radar runs `git log` for that
+  note. On a very large folder this is slow.
+- CI runs on Linux only. macOS has been tried by hand, and Windows has not been tried at all.
+- Not published on PyPI. Install from the repository.
 
 ## Licence
 
